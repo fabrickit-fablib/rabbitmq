@@ -32,9 +32,9 @@ class RabbitMQ(SimpleBase):
         if 'guest' in users:
             sudo('rabbitmqctl delete_user guest')
 
-        print users
         for user in data['users'].values():
             if user['user'] not in users:
                 sudo('rabbitmqctl add_user {0[user]} {0[password]}'.format(user))
             for permission in user['permissions']:
-                sudo('rabbitmqctl set_permissions -p {1[vhost]} {0[user]} {1[permissions]}'.format(user, permission))
+                sudo('rabbitmqctl set_permissions -p {1[vhost]} {0[user]} {1[permissions]}'.format(
+                    user, permission))
