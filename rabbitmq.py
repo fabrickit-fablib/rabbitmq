@@ -17,7 +17,7 @@ class RabbitMQ(SimpleBase):
         data = self.get_init_data()
 
         Package('rabbitmq-server').install(path='https://www.rabbitmq.com/releases/rabbitmq-server/v3.5.1/rabbitmq-server-3.5.1-1.noarch.rpm')  # noqa
-        self.start_services()
+        self.enable_services().start_services()
         sudo('rabbitmqctl status')
         sudo('rabbitmq-plugins enable rabbitmq_management')
 
