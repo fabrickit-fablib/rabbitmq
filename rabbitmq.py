@@ -1,7 +1,11 @@
 # coding: utf-8
 
-from fabkit import sudo, Package
+import re
+from fabkit import sudo, Package, env
 from fablib.base import SimpleBase
+
+re_centos6 = re.compile('CentOS 6.*')
+re_centos7 = re.compile('CentOS 7.*')
 
 
 class RabbitMQ(SimpleBase):
@@ -11,12 +15,20 @@ class RabbitMQ(SimpleBase):
         self.data = {
 
         }
-        self.services = ['rabbitmq-server']
+        self.services = {
+            'CentOS[67].*': ['rabbitmq-server']
+        }
 
     def setup(self):
         data = self.get_init_data()
 
-        Package('rabbitmq-server').install(path='https://www.rabbitmq.com/releases/rabbitmq-server/v3.5.1/rabbitmq-server-3.5.1-1.noarch.rpm')  # noqa
+        if re_centos6.match(env.node['os']):
+            Package('epel-release').install(
+                'http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm')
+        elif re_centos7.match(env.node['os']):
+            Package('epel-release').install()
+
+        Package('rabbitmq-server-3.5.2').install('https://www.rabbitmq.com/releases/rabbitmq-server/v3.5.2/rabbitmq-server-3.5.2-1.noarch.rpm')  # noqa
         self.enable_services().start_services()
         sudo('rabbitmqctl status')
         sudo('rabbitmq-plugins enable rabbitmq_management')
