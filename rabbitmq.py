@@ -10,10 +10,10 @@ class RabbitMQ(SimpleBase):
         self.data_key = 'rabbitmq'
         self.data = {}
         self.services = {
-            'CentOS 7.*': ['rabbitmq-server']
+            'CentOS Linux 7.*': ['rabbitmq-server']
         }
         self.packages = {
-            'CentOS 7.*': [
+            'CentOS Linux 7.*': [
                 'epel-release',
                 {
                     'name': 'rabbitmq-server-3.5.2',
