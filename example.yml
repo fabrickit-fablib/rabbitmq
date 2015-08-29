@@ -1,0 +1,15 @@
+rabbitmq:
+  common:
+    cookie: ZZQGFTJWFNSNTCMTBYGT
+    hosts: ${#node_map.rabbitmq.hosts}
+    host: ${#node_map.rabbitmq.hosts.0}
+    port: 5672
+    vhosts:
+      openstack: /openstack
+    users:
+      openstack:
+        user: openstack
+        password: openstackpass
+        permissions:
+          - vhost: ${#rabbitmq.common.vhosts.openstack}
+            permissions: '".*" ".*" ".*"'
