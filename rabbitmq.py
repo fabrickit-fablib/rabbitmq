@@ -26,13 +26,13 @@ class RabbitMQ(SimpleBase):
     def init_data(self):
         for cluster in self.data.values():
             if env.host in cluster['hosts']:
-                self.data['cluster'] = cluster
+                self.data['rabbitmq_cluster'] = cluster
                 break
 
     def setup(self):
         self.init()
 
-        cluster = self.data['cluster']
+        cluster = self.data['rabbitmq_cluster']
 
         self.install_packages()
 
@@ -77,7 +77,7 @@ class RabbitMQ(SimpleBase):
 
     def setup_cluster(self):
         self.init()
-        cluster = self.data['cluster']
+        cluster = self.data['rabbitmq_cluster']
 
         if env.host == cluster['hosts'][0]:
             for vhost in cluster['vhosts'].values():
