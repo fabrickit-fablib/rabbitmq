@@ -1,9 +1,24 @@
-env:
-  port: 31022
-
 node_map:
-  centos7:
+  cluster1:
     hosts:
-      - localhost
+      - 192.168.122.50
+      - 192.168.122.51
     fabruns:
       - test/base
+
+rabbitmq:
+  clusters:
+    cluster1:
+      cookie: ZZQGFTJWFNSNTCMTBYGT
+      hosts: ${#node_map.cluster1.hosts}
+      host: ${#node_map.cluster1.hosts.0}
+      port: 5672
+      vhosts:
+        sample: /sample
+      users:
+        sample:
+          user: sample
+          password: samplepass
+          permissions:
+            - vhost: ${#rabbitmq.clusters.cluster1.vhosts.sample}
+              permissions: '".*" ".*" ".*"'

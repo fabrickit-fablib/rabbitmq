@@ -24,30 +24,29 @@ class RabbitMQ(SimpleBase):
         }
 
     def init_after(self):
-        for cluster in self.data.values():
+        for cluster in self.data.get('clusters', {}).values():
             if env.host in cluster['hosts']:
-                self.data['rabbitmq_cluster'] = cluster
+                self.data.update(cluster)
                 break
 
     def setup(self):
-        self.init()
-        cluster = self.data['rabbitmq_cluster']
+        data = self.init()
 
         if self.is_tag('package'):
             self.install_packages()
 
         if self.is_tag('conf'):
             filer.template('/var/lib/rabbitmq/.erlang.cookie',
-                           src_str=cluster['cookie'],
+                           src_str=data['cookie'],
                            mode='400',
                            owner='rabbitmq:rabbitmq')
 
             etc_hosts = Editor('/etc/hosts')
-            for i, host in enumerate(cluster['hosts']):
+            for i, host in enumerate(data['hosts']):
                 ip = socket.gethostbyname(host)
                 etc_hosts.a('{0} rabbit{1}'.format(ip, i))
 
-            node_index = cluster['hosts'].index(env.host)
+            node_index = data['hosts'].index(env.host)
             nodename = 'rabbit@rabbit{0}'.format(node_index)
             filer.template('/etc/rabbitmq/rabbitmq-env.conf',
                            src_str='NODENAME={0}'.format(nodename),
@@ -63,7 +62,7 @@ class RabbitMQ(SimpleBase):
             if nodename == 'rabbit@rabbit0':
                 result = sudo('rabbitmqctl list_vhosts | grep -v Listing')
                 vhosts = result.split('\r\n')
-                for vhost in cluster['vhosts'].values():
+                for vhost in data['vhosts'].values():
                     if vhost not in vhosts:
                         sudo('rabbitmqctl add_vhost {0}'.format(vhost))
 
@@ -72,7 +71,7 @@ class RabbitMQ(SimpleBase):
                 if 'guest' in users:
                     sudo('rabbitmqctl delete_user guest')
 
-                for user in cluster['users'].values():
+                for user in data['users'].values():
                     if user['user'] not in users:
                         sudo('rabbitmqctl add_user {0[user]} {0[password]}'.format(user))
                     for permission in user['permissions']:
@@ -80,11 +79,10 @@ class RabbitMQ(SimpleBase):
 
     def setup_cluster(self):
         if self.is_tag('data'):
-            self.init()
-            cluster = self.data['rabbitmq_cluster']
+            data = self.init()
 
-            if env.host == cluster['hosts'][0]:
-                for vhost in cluster['vhosts'].values():
+            if env.host == data['hosts'][0]:
+                for vhost in data['vhosts'].values():
                     sudo('rabbitmqctl set_policy all \'^.*\' \'{{"ha-mode": "all"}}\' -p {0}'.format(vhost))  # noqa
             else:
                 with api.warn_only():
