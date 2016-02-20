@@ -7,7 +7,7 @@ node_map:
       - test/base
 
 rabbitmq:
-  clusters:
+  cluster_map:
     cluster1:
       cookie: ZZQGFTJWFNSNTCMTBYGT
       hosts: ${#node_map.cluster1.hosts}
@@ -20,5 +20,5 @@ rabbitmq:
           user: sample
           password: samplepass
           permissions:
-            - vhost: ${#rabbitmq.clusters.cluster1.vhosts.sample}
+            - vhost: ${#rabbitmq.cluster_map.cluster1.vhosts.sample}
               permissions: '".*" ".*" ".*"'
