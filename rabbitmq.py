@@ -62,7 +62,7 @@ class RabbitMQ(SimpleBase):
             if nodename == 'rabbit@rabbit0':
                 result = sudo('rabbitmqctl list_vhosts | grep -v Listing')
                 vhosts = result.split('\r\n')
-                for vhost in data['vhosts'].values():
+                for vhost in data['vhost_map'].values():
                     if vhost not in vhosts:
                         sudo('rabbitmqctl add_vhost {0}'.format(vhost))
 
@@ -82,7 +82,7 @@ class RabbitMQ(SimpleBase):
             data = self.init()
 
             if env.host == data['hosts'][0]:
-                for vhost in data['vhosts'].values():
+                for vhost in data['vhost_map'].values():
                     sudo('rabbitmqctl set_policy all \'^.*\' \'{{"ha-mode": "all"}}\' -p {0}'.format(vhost))  # noqa
             else:
                 with api.warn_only():

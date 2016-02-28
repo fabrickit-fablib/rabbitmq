@@ -13,7 +13,7 @@ rabbitmq:
       hosts: ${#node_map.cluster1.hosts}
       host: ${#node_map.cluster1.hosts.0}
       port: 5672
-      vhosts:
+      vhost_map:
         sample: /sample
       user_map:
         sample:
