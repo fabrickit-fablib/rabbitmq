@@ -17,8 +17,8 @@ class RabbitMQ(SimpleBase):
             'CentOS Linux 7.*': [
                 'epel-release',
                 {
-                    'name': 'rabbitmq-server-3.5.2',
-                    'path': 'https://www.rabbitmq.com/releases/rabbitmq-server/v3.5.2/rabbitmq-server-3.5.2-1.noarch.rpm',  # noqa
+                    'name': 'rabbitmq-server-3.6.10',
+                    'path': 'https://www.rabbitmq.com/releases/rabbitmq-server/v3.6.10/rabbitmq-server-3.6.10-1.el7.noarch.rpm',  # noqa
                 },
             ]
         }

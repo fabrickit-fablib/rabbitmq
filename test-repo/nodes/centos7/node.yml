@@ -1,24 +1,26 @@
 node_map:
-  cluster1:
+  rabbitmq:
     hosts:
-      - 192.168.122.50
-      - 192.168.122.51
+      - 192.168.122.131
+      - 192.168.122.132
     fabruns:
       - test/base
 
+
 rabbitmq:
   cluster_map:
-    cluster1:
+    common:
       cookie: ZZQGFTJWFNSNTCMTBYGT
-      hosts: ${#node_map.cluster1.hosts}
-      host: ${#node_map.cluster1.hosts.0}
+      hosts: ${#node_map.rabbitmq.hosts}
+      host: ${#node_map.rabbitmq.hosts.0}
       port: 5672
       vhost_map:
-        sample: /sample
+        openstack: /openstack
       user_map:
-        sample:
-          user: sample
-          password: samplepass
+        openstack:
+          user: openstack
+          password: openstackpass
           permissions:
-            - vhost: ${#rabbitmq.cluster_map.cluster1.vhosts.sample}
+            - vhost: ${#rabbitmq.cluster_map.common.vhost_map.openstack}
               permissions: '".*" ".*" ".*"'
+      transport_url: rabbit://${#rabbitmq.cluster_map.common.user_map.openstack.user}:${#rabbitmq.cluster_map.common.user_map.openstack.password}@${#node_map.rabbitmq.hosts.0}:${#rabbitmq.cluster_map.common.port}/${#rabbitmq.cluster_map.common.vhost_map.openstack}
