@@ -4,7 +4,7 @@ node_map:
       - 192.168.122.131
       - 192.168.122.132
     fabruns:
-      - test/base
+      - rabbitmq/base
 
 
 rabbitmq:
