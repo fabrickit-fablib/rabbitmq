@@ -11,7 +11,8 @@ class RabbitMQ(SimpleBase):
         self.data_key = 'rabbitmq'
         self.data = {}
         self.services = {
-            'CentOS Linux 7.*': ['rabbitmq-server']
+            'CentOS Linux 7.*': ['rabbitmq-server'],
+            'Ubuntu 16.*': ['rabbitmq-server'],
         }
         self.packages = {
             'CentOS Linux 7.*': [
@@ -20,6 +21,9 @@ class RabbitMQ(SimpleBase):
                     'name': 'rabbitmq-server-3.6.10',
                     'path': 'https://www.rabbitmq.com/releases/rabbitmq-server/v3.6.10/rabbitmq-server-3.6.10-1.el7.noarch.rpm',  # noqa
                 },
+            ],
+            'Ubuntu 16.*': [
+                'rabbitmq-server',
             ]
         }
 
@@ -36,10 +40,12 @@ class RabbitMQ(SimpleBase):
             self.install_packages()
 
         if self.is_tag('conf'):
-            filer.template('/var/lib/rabbitmq/.erlang.cookie',
-                           src_str=data['cookie'],
-                           mode='400',
-                           owner='rabbitmq:rabbitmq')
+            if filer.template('/var/lib/rabbitmq/.erlang.cookie',
+                              src_str=data['cookie'],
+                              mode='400',
+                              owner='rabbitmq:rabbitmq'):
+                sudo('rm -rf /var/lib/rabbitmq/mnesia')
+                self.handlers['restart_rabbitmq-server'] = True
 
             etc_hosts = Editor('/etc/hosts')
             for i, host in enumerate(data['hosts']):
@@ -48,13 +54,15 @@ class RabbitMQ(SimpleBase):
 
             node_index = data['hosts'].index(env.host)
             nodename = 'rabbit@rabbit{0}'.format(node_index)
-            filer.template('/etc/rabbitmq/rabbitmq-env.conf',
-                           src_str='NODENAME={0}'.format(nodename),
-                           mode='644',
-                           owner='rabbitmq:rabbitmq')
+            if filer.template('/etc/rabbitmq/rabbitmq-env.conf',
+                              src_str='NODENAME={0}'.format(nodename),
+                              mode='644',
+                              owner='rabbitmq:rabbitmq'):
+                self.handlers['restart_rabbitmq-server'] = True
 
         if self.is_tag('service'):
             self.enable_services().start_services()
+            self.exec_handlers()
 
         if self.is_tag('data'):
             sudo('rabbitmq-plugins enable rabbitmq_management')
